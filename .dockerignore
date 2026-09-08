@@ -1,0 +1,8 @@
+.git
+.github
+.env
+config.json
+state.json
+target
+README*
+manifest.scm

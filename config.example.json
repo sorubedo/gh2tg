@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "repositories": {
+    "owner/repo": {
+      "topic_name": "repo",
+      "commits": {
+        "branches": ["main"]
+      },
+      "releases": {
+        "include_prereleases": false,
+        "asset_regex": "^my-app-.*\\.tar\\.gz$"
+      },
+      "actions": {
+        "workflows": [
+          {
+            "workflow_file": ".github/workflows/build.yml",
+            "branches": ["main"],
+            "conclusions": ["success"],
+            "artifact_regex": "^my-app-.*$"
+          }
+        ]
+      }
+    }
+  }
+}
