@@ -17,7 +17,7 @@ BetterCI は、GitHub から Telegram へ通知を送る単発実行型のポー
 
 - トピックを有効にした Telegram スーパーグループ
 - トピック管理権限を持つ Telegram Bot
-- 任意の GitHub Token（Artifact を設定する場合は必須）
+- GitHub Token
 
 ## クイックスタート
 

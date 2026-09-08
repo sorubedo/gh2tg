@@ -17,7 +17,7 @@ BetterCI 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配�
 
 - 开启了“话题”的 Telegram 超级群组
 - Telegram Bot，并授予管理员的“管理话题”权限
-- 可选的 GitHub Token（配置 Artifacts 时必须）
+- GitHub Token
 
 ## 快速开始
 

@@ -17,7 +17,7 @@ BetterCI is a one-shot GitHub-to-Telegram poller. It checks commits, releases, a
 
 - A Telegram supergroup with Topics enabled
 - A Telegram Bot with administrator permission to manage topics
-- An optional GitHub Token (required when configuring artifacts)
+- A GitHub Token
 
 ## Quick Start
 
