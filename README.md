@@ -46,6 +46,17 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 The first run establishes the current state baseline and saves it to `state.json`; existing history is not sent. Later runs only process newly detected updates. Run GH2TG periodically with cron, a systemd timer, or another scheduler.
 
+## GitHub Actions Deployment
+
+The [`gh2tg-template`](https://github.com/sorubedo/gh2tg-template) repository contains a ready-to-use GitHub Actions deployment. It runs the public `ghcr.io/sorubedo/gh2tg:latest` image every two hours and commits `state.json` back to the template repository so updates are not sent repeatedly.
+
+1. Copy the template into a new GitHub repository.
+2. In **Settings → Actions → General**, set **Workflow permissions** to **Read and write permissions**.
+3. Add these repository secrets under **Settings → Secrets and variables → Actions**: `GH2TG_BOT_TOKEN`, `GH2TG_GROUP_ID`, and `GH2TG_GITHUB_TOKEN`.
+4. Edit `config.json`, then run **Actions → Run GH2TG → Run workflow** once.
+
+`GH2TG_GITHUB_TOKEN` must be able to read the repositories being monitored. You do not need to download, create, or upload `state.json` manually: the first run creates it, and the workflow maintains it automatically.
+
 ## Docker
 
 The project publishes two images to GHCR:
