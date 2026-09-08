@@ -156,20 +156,20 @@ impl Translator {
     pub fn help(self) -> &'static str {
         match self.language {
             Language::English => {
-                "BetterCI - one-shot GitHub to Telegram poller\n\n\
-Usage:\n  better-ci [options]\n\n\
+                "GH2TG - one-shot GitHub to Telegram poller\n\n\
+Usage:\n  gh2tg [options]\n\n\
 Options:\n  -c, --config <path>  Configuration file path (default: config.json)\n  -s, --state <path>   State file path (default: state.json)\n  -h, --help           Show help\n\n\
 Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (default: en)"
             }
             Language::Chinese => {
-                "BetterCI - 单次 GitHub 到 Telegram 轮询器\n\n\
-用法:\n  better-ci [选项]\n\n\
+                "GH2TG - 单次 GitHub 到 Telegram 轮询器\n\n\
+用法:\n  gh2tg [选项]\n\n\
 选项:\n  -c, --config <路径>  配置文件路径，默认 config.json\n  -s, --state <路径>   状态文件路径，默认 state.json\n  -h, --help           显示帮助\n\n\
 环境变量:\n  LC_ALL / LC_MESSAGES / LANG  输出语言：en、zh 或 ja，默认 en"
             }
             Language::Japanese => {
-                "BetterCI - GitHub から Telegram への単発ポーラー\n\n\
-使用方法:\n  better-ci [オプション]\n\n\
+                "GH2TG - GitHub から Telegram への単発ポーラー\n\n\
+使用方法:\n  gh2tg [オプション]\n\n\
 オプション:\n  -c, --config <パス>  設定ファイルのパス（既定: config.json）\n  -s, --state <パス>   状態ファイルのパス（既定: state.json）\n  -h, --help           ヘルプを表示\n\n\
 環境変数:\n  LC_ALL / LC_MESSAGES / LANG  出力言語: en、zh、ja（既定: en）"
             }
@@ -187,9 +187,9 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
     pub(crate) fn cli_failure(self, error: &CliError) -> String {
         let detail = self.cli_error(error);
         match self.language {
-            Language::English => format!("BetterCI argument error: {detail}"),
-            Language::Chinese => format!("BetterCI 参数错误: {detail}"),
-            Language::Japanese => format!("BetterCI 引数エラー: {detail}"),
+            Language::English => format!("GH2TG argument error: {detail}"),
+            Language::Chinese => format!("GH2TG 参数错误: {detail}"),
+            Language::Japanese => format!("GH2TG 引数エラー: {detail}"),
         }
     }
 
@@ -215,9 +215,9 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
         };
         let code = code.map(|code| format!(" [{code}]")).unwrap_or_default();
         match self.language {
-            Language::English => format!("BetterCI execution failed{code}: {detail}"),
-            Language::Chinese => format!("BetterCI 执行失败{code}: {detail}"),
-            Language::Japanese => format!("BetterCI の実行に失敗しました{code}: {detail}"),
+            Language::English => format!("GH2TG execution failed{code}: {detail}"),
+            Language::Chinese => format!("GH2TG 执行失败{code}: {detail}"),
+            Language::Japanese => format!("GH2TG の実行に失敗しました{code}: {detail}"),
         }
     }
 
@@ -279,7 +279,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                 format!("环境变量 {name} 不是有效的 Unicode")
             }
             (Language::Chinese, ConfigError::InvalidGroupId) => {
-                "BETTER_CI_GROUP_ID 必须是以 -100 开头的有效整数".to_owned()
+                "GH2TG_GROUP_ID 必须是以 -100 开头的有效整数".to_owned()
             }
             (Language::Chinese, ConfigError::ReadConfig { path, source }) => {
                 format!("无法读取配置文件 {}: {source}", path.display())
@@ -335,7 +335,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                 format!("環境変数 {name} は有効な Unicode ではありません")
             }
             (Language::Japanese, ConfigError::InvalidGroupId) => {
-                "BETTER_CI_GROUP_ID は -100 で始まる有効な整数である必要があります".to_owned()
+                "GH2TG_GROUP_ID は -100 で始まる有効な整数である必要があります".to_owned()
             }
             (Language::Japanese, ConfigError::ReadConfig { path, source }) => {
                 format!("設定ファイル {} を読み込めません: {source}", path.display())
@@ -548,7 +548,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                 },
             ) => {
                 format!(
-                    "状态文件属于群组 {state_group_id}，当前 BETTER_CI_GROUP_ID 为 {configured_group_id}"
+                    "状态文件属于群组 {state_group_id}，当前 GH2TG_GROUP_ID 为 {configured_group_id}"
                 )
             }
             (
@@ -596,7 +596,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                     configured_group_id,
                 },
             ) => format!(
-                "状態ファイルのグループは {state_group_id} ですが、現在の BETTER_CI_GROUP_ID は {configured_group_id} です"
+                "状態ファイルのグループは {state_group_id} ですが、現在の GH2TG_GROUP_ID は {configured_group_id} です"
             ),
             (
                 Language::Japanese,
@@ -1233,7 +1233,7 @@ fn plural(count: usize, singular: &'static str, plural: &'static str) -> &'stati
 
 fn console_english(message: ConsoleMessage<'_>) -> String {
     match message {
-        ConsoleMessage::RunStarted => "BetterCI started".to_owned(),
+        ConsoleMessage::RunStarted => "GH2TG started".to_owned(),
         ConsoleMessage::ConfigPath(path) => format!("Configuration file: {}", path.display()),
         ConsoleMessage::StatePath(path) => format!("State file: {}", path.display()),
         ConsoleMessage::ConfigLoaded {
@@ -1432,7 +1432,7 @@ fn console_english(message: ConsoleMessage<'_>) -> String {
 
 fn console_chinese(message: ConsoleMessage<'_>) -> String {
     match message {
-        ConsoleMessage::RunStarted => "BetterCI 开始运行".to_owned(),
+        ConsoleMessage::RunStarted => "GH2TG 开始运行".to_owned(),
         ConsoleMessage::ConfigPath(path) => format!("配置文件: {}", path.display()),
         ConsoleMessage::StatePath(path) => format!("状态文件: {}", path.display()),
         ConsoleMessage::ConfigLoaded {
@@ -1609,7 +1609,7 @@ fn console_chinese(message: ConsoleMessage<'_>) -> String {
 
 fn console_japanese(message: ConsoleMessage<'_>) -> String {
     match message {
-        ConsoleMessage::RunStarted => "BetterCI を開始しました".to_owned(),
+        ConsoleMessage::RunStarted => "GH2TG を開始しました".to_owned(),
         ConsoleMessage::ConfigPath(path) => format!("設定ファイル: {}", path.display()),
         ConsoleMessage::StatePath(path) => format!("状態ファイル: {}", path.display()),
         ConsoleMessage::ConfigLoaded {

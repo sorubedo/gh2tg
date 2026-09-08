@@ -1,8 +1,8 @@
-# BetterCI
+# GH2TG
 
 [English](README.md) | [日本語](README.ja.md)
 
-BetterCI 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配置仓库的提交、Release 和 GitHub Actions，并把更新与匹配的构建产物发送到 Telegram 超级群组的话题中。
+GH2TG 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配置仓库的提交、Release 和 GitHub Actions，并把更新与匹配的构建产物发送到 Telegram 超级群组的话题中。
 
 ## 功能
 
@@ -24,9 +24,9 @@ BetterCI 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配�
 设置以下环境变量：
 
 ```bash
-BETTER_CI_BOT_TOKEN=你的 Telegram Bot Token
-BETTER_CI_GROUP_ID=-1001234567890
-BETTER_CI_GITHUB_TOKEN=你的 GitHub Token
+GH2TG_BOT_TOKEN=你的 Telegram Bot Token
+GH2TG_GROUP_ID=-1001234567890
+GH2TG_GITHUB_TOKEN=你的 GitHub Token
 LANG=zh
 ```
 
@@ -35,13 +35,13 @@ LANG=zh
 编辑 `config.json`，把示例中的 `owner/repo`、分支、工作流和文件匹配规则替换成实际值。然后运行：
 
 ```bash
-better-ci
+gh2tg
 ```
 
 默认读取当前目录下的 `config.json` 和 `state.json`，也可以指定路径：
 
 ```bash
-better-ci --config /path/to/config.json --state /path/to/state.json
+gh2tg --config /path/to/config.json --state /path/to/state.json
 ```
 
 首次运行会建立当前状态基线并保存到 `state.json`，不会发送已有历史内容。之后每次运行只处理检测到的新内容。可通过 cron、systemd timer 或其他任务调度器定期执行。
@@ -50,8 +50,8 @@ better-ci --config /path/to/config.json --state /path/to/state.json
 
 GitHub Actions 会向 GHCR 发布两个镜像：
 
-- `ghcr.io/sorubedo/better-ci:latest`：单次运行
-- `ghcr.io/sorubedo/better-ci:cron`：使用 cron 定时运行
+- `ghcr.io/sorubedo/gh2tg:latest`：单次运行
+- `ghcr.io/sorubedo/gh2tg:cron`：使用 cron 定时运行
 
 将 `.env` 和 `config.json` 放在当前目录中。
 
@@ -61,25 +61,25 @@ GitHub Actions 会向 GHCR 发布两个镜像：
 docker run --rm \
   --env-file .env \
   -v "$PWD:/data" \
-  ghcr.io/sorubedo/better-ci:latest
+  ghcr.io/sorubedo/gh2tg:latest
 ```
 
 运行 cron 镜像：
 
 ```bash
 docker run -d \
-  --name better-ci-cron \
+  --name gh2tg-cron \
   --restart unless-stopped \
   --env-file .env \
   -v "$PWD:/data" \
-  ghcr.io/sorubedo/better-ci:cron
+  ghcr.io/sorubedo/gh2tg:cron
 ```
 
 Cron 镜像环境变量：
 
-- `BETTER_CI_CRON`：执行计划，默认 `0 * * * *`
-- `BETTER_CI_CONFIG`：配置文件路径，默认 `config.json`
-- `BETTER_CI_STATE`：状态文件路径，默认 `state.json`
+- `GH2TG_CRON`：执行计划，默认 `0 * * * *`
+- `GH2TG_CONFIG`：配置文件路径，默认 `config.json`
+- `GH2TG_STATE`：状态文件路径，默认 `state.json`
 
 ## 配置说明
 

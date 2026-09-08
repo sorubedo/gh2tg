@@ -363,7 +363,7 @@ pub enum StateError {
     #[error("unsupported state schema_version: {0}")]
     UnsupportedSchemaVersion(u32),
     #[error(
-        "state file belongs to group {state_group_id}, but configured BETTER_CI_GROUP_ID is {configured_group_id}"
+        "state file belongs to group {state_group_id}, but configured GH2TG_GROUP_ID is {configured_group_id}"
     )]
     GroupMismatch {
         state_group_id: i64,

@@ -117,7 +117,7 @@ pub enum ConfigError {
     MissingEnvironment(&'static str),
     #[error("environment variable {0} is not valid Unicode")]
     InvalidEnvironment(&'static str),
-    #[error("BETTER_CI_GROUP_ID must be a valid integer starting with -100")]
+    #[error("GH2TG_GROUP_ID must be a valid integer starting with -100")]
     InvalidGroupId,
     #[error("failed to read configuration file {path}: {source}")]
     ReadConfig {
@@ -187,9 +187,9 @@ pub fn load(path: &Path) -> Result<Settings, ConfigError> {
 
 fn load_environment() -> Result<Environment, ConfigError> {
     Ok(Environment {
-        bot_token: required_environment("BETTER_CI_BOT_TOKEN")?,
-        group_id: parse_group_id(&required_environment("BETTER_CI_GROUP_ID")?)?,
-        github_token: required_environment("BETTER_CI_GITHUB_TOKEN")?,
+        bot_token: required_environment("GH2TG_BOT_TOKEN")?,
+        group_id: parse_group_id(&required_environment("GH2TG_GROUP_ID")?)?,
+        github_token: required_environment("GH2TG_GITHUB_TOKEN")?,
     })
 }
 

@@ -19,7 +19,7 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y ca-certificates libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /build/target/release/better-ci /usr/local/bin/better-ci
+COPY --from=builder /build/target/release/gh2tg /usr/local/bin/gh2tg
 
 WORKDIR /data
 
@@ -29,11 +29,11 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y cron \
     && rm -rf /var/lib/apt/lists/*
 
-COPY docker/cron-entrypoint.sh /usr/local/bin/better-ci-cron
-RUN chmod 0755 /usr/local/bin/better-ci-cron
+COPY docker/cron-entrypoint.sh /usr/local/bin/gh2tg-cron
+RUN chmod 0755 /usr/local/bin/gh2tg-cron
 
-ENTRYPOINT ["/usr/local/bin/better-ci-cron"]
+ENTRYPOINT ["/usr/local/bin/gh2tg-cron"]
 
 FROM runtime AS one-shot
 
-ENTRYPOINT ["/usr/local/bin/better-ci"]
+ENTRYPOINT ["/usr/local/bin/gh2tg"]

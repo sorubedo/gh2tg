@@ -24,7 +24,7 @@ use thiserror::Error;
 use tokio::{fs::File, io::AsyncWriteExt, time::sleep};
 
 const API_ROOT: &str = "https://api.github.com/";
-const USER_AGENT_VALUE: &str = "BetterCI/0.1";
+const USER_AGENT_VALUE: &str = "GH2TG/0.1";
 const MAX_GET_ATTEMPTS: usize = 3;
 const INITIAL_RETRY_DELAY: Duration = Duration::from_millis(500);
 const MAX_RETRY_AFTER: u64 = 30;
