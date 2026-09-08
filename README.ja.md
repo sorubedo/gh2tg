@@ -48,14 +48,7 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 ## GitHub Actions でのデプロイ
 
-[`gh2tg-template`](https://github.com/sorubedo/gh2tg-template) は、そのまま使用できる GitHub Actions テンプレートです。公開されている `ghcr.io/sorubedo/gh2tg:latest` イメージを 2 時間ごとに実行し、重複通知を防ぐため `state.json` をテンプレートリポジトリへコミットします。
-
-1. テンプレートを新しい GitHub リポジトリにコピーします。
-2. **Settings → Actions → General** で **Workflow permissions** を **Read and write permissions** に設定します。
-3. **Settings → Secrets and variables → Actions** に `GH2TG_BOT_TOKEN`、`GH2TG_GROUP_ID`、`GH2TG_GITHUB_TOKEN` を Repository secrets として追加します。
-4. `config.json` を編集し、**Actions → Run GH2TG → Run workflow** から一度手動実行します。
-
-`GH2TG_GITHUB_TOKEN` は監視対象のリポジトリを読み取れる必要があります。`state.json` を手動でダウンロード、作成、アップロードする必要はありません。初回実行時に自動生成され、その後はワークフローが自動的に管理します。
+すぐにデプロイできる [GH2TG GitHub Actions テンプレート](https://github.com/sorubedo/gh2tg-template) を使用してください。
 
 ## Docker
 

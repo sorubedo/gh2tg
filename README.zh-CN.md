@@ -48,14 +48,7 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 ## 使用 GitHub Actions 部署
 
-[`gh2tg-template`](https://github.com/sorubedo/gh2tg-template) 是可直接使用的 GitHub Actions 模板。它每两小时运行公开的 `ghcr.io/sorubedo/gh2tg:latest` 镜像，并把 `state.json` 提交回模板仓库，避免重复发送。
-
-1. 将模板复制到一个新的 GitHub 仓库。
-2. 打开 **Settings → Actions → General**，将 **Workflow permissions** 设置为 **Read and write permissions**。
-3. 在 **Settings → Secrets and variables → Actions** 添加以下 Repository secrets：`GH2TG_BOT_TOKEN`、`GH2TG_GROUP_ID`、`GH2TG_GITHUB_TOKEN`。
-4. 编辑 `config.json`，然后打开 **Actions → Run GH2TG → Run workflow** 手动执行一次。
-
-`GH2TG_GITHUB_TOKEN` 必须能读取要监控的仓库。无需手动下载、创建或上传 `state.json`：首次运行会自动生成，之后由工作流自动维护。
+请使用可直接部署的 [GH2TG GitHub Actions 模板](https://github.com/sorubedo/gh2tg-template)。
 
 ## Docker
 
