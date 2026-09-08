@@ -24,9 +24,9 @@ BetterCI is a one-shot GitHub-to-Telegram poller. It checks commits, releases, a
 Set the following environment variables:
 
 ```bash
-BOT_TOKEN=your_telegram_bot_token
-GROUP_ID=-1001234567890
-GITHUB_TOKEN=your_github_token
+BETTER_CI_BOT_TOKEN=your_telegram_bot_token
+BETTER_CI_GROUP_ID=-1001234567890
+BETTER_CI_GITHUB_TOKEN=your_github_token
 LANG=en
 ```
 

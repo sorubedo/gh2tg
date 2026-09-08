@@ -24,9 +24,9 @@ BetterCI 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配�
 设置以下环境变量：
 
 ```bash
-BOT_TOKEN=你的 Telegram Bot Token
-GROUP_ID=-1001234567890
-GITHUB_TOKEN=你的 GitHub Token
+BETTER_CI_BOT_TOKEN=你的 Telegram Bot Token
+BETTER_CI_GROUP_ID=-1001234567890
+BETTER_CI_GITHUB_TOKEN=你的 GitHub Token
 LANG=zh
 ```
 

@@ -279,7 +279,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                 format!("环境变量 {name} 不是有效的 Unicode")
             }
             (Language::Chinese, ConfigError::InvalidGroupId) => {
-                "GROUP_ID 必须是以 -100 开头的有效整数".to_owned()
+                "BETTER_CI_GROUP_ID 必须是以 -100 开头的有效整数".to_owned()
             }
             (Language::Chinese, ConfigError::ReadConfig { path, source }) => {
                 format!("无法读取配置文件 {}: {source}", path.display())
@@ -335,7 +335,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                 format!("環境変数 {name} は有効な Unicode ではありません")
             }
             (Language::Japanese, ConfigError::InvalidGroupId) => {
-                "GROUP_ID は -100 で始まる有効な整数である必要があります".to_owned()
+                "BETTER_CI_GROUP_ID は -100 で始まる有効な整数である必要があります".to_owned()
             }
             (Language::Japanese, ConfigError::ReadConfig { path, source }) => {
                 format!("設定ファイル {} を読み込めません: {source}", path.display())
@@ -547,7 +547,9 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                     configured_group_id,
                 },
             ) => {
-                format!("状态文件属于群组 {state_group_id}，当前 GROUP_ID 为 {configured_group_id}")
+                format!(
+                    "状态文件属于群组 {state_group_id}，当前 BETTER_CI_GROUP_ID 为 {configured_group_id}"
+                )
             }
             (
                 Language::Chinese,
@@ -594,7 +596,7 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                     configured_group_id,
                 },
             ) => format!(
-                "状態ファイルのグループは {state_group_id} ですが、現在の GROUP_ID は {configured_group_id} です"
+                "状態ファイルのグループは {state_group_id} ですが、現在の BETTER_CI_GROUP_ID は {configured_group_id} です"
             ),
             (
                 Language::Japanese,

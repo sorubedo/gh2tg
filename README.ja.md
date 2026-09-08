@@ -24,9 +24,9 @@ BetterCI は、GitHub から Telegram へ通知を送る単発実行型のポー
 以下の環境変数を設定します。
 
 ```bash
-BOT_TOKEN=your_telegram_bot_token
-GROUP_ID=-1001234567890
-GITHUB_TOKEN=your_github_token
+BETTER_CI_BOT_TOKEN=your_telegram_bot_token
+BETTER_CI_GROUP_ID=-1001234567890
+BETTER_CI_GITHUB_TOKEN=your_github_token
 LANG=ja
 ```
 
