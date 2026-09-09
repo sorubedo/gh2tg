@@ -1,7 +1,8 @@
 [package]
 name = "gh2tg"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
+repository = "https://github.com/sorubedo/gh2tg"
 
 [dependencies]
 dotenvy = "0.15.7"
@@ -16,3 +17,8 @@ tempfile = "3"
 thiserror = "2"
 tokio = { version = "1", features = ["fs", "io-util", "macros", "rt-multi-thread", "time"] }
 url = "2"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
