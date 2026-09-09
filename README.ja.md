@@ -50,10 +50,6 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 すぐにデプロイできる [GH2TG GitHub Actions テンプレート](https://github.com/sorubedo/gh2tg-template) を使用してください。
 
-## リリース
-
-`Cargo.toml` のバージョンと一致するタグ（例：`v0.2.1`）を push すると、cargo-dist が各プラットフォーム向けアーカイブを自動でビルドし、GitHub Release を作成します。
-
 ## Docker
 
 GitHub Actions は GHCR に次の 2 つのイメージを公開します。

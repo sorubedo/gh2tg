@@ -50,10 +50,6 @@ The first run establishes the current state baseline and saves it to `state.json
 
 Use the ready-to-deploy [GH2TG GitHub Actions template](https://github.com/sorubedo/gh2tg-template).
 
-## Releases
-
-Push a version tag matching `Cargo.toml`, such as `v0.2.1`, to build cross-platform archives and create a GitHub Release with cargo-dist.
-
 ## Docker
 
 The project publishes two images to GHCR:

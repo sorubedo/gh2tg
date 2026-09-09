@@ -50,10 +50,6 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 请使用可直接部署的 [GH2TG GitHub Actions 模板](https://github.com/sorubedo/gh2tg-template)。
 
-## 发布
-
-推送与 `Cargo.toml` 版本一致的标签（例如 `v0.2.1`），cargo-dist 会自动构建各平台压缩包并创建 GitHub Release。
-
 ## Docker
 
 GitHub Actions 会向 GHCR 发布两个镜像：
