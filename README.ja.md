@@ -2,7 +2,16 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
+[![Telegram](https://img.shields.io/badge/Telegram-@gh2tg-26A5E4?logo=telegram&logoColor=white)](https://t.me/gh2tg)
+
 GH2TG は、GitHub から Telegram へ通知を送る単発実行型のポーラーです。設定したリポジトリのコミット、Release、GitHub Actions を確認し、更新内容と条件に一致するビルド成果物を Telegram スーパーグループのトピックに送信します。
+
+## GH2TG の利点
+
+- **セルフホストサーバー不要：** GH2TG は単発実行型のため、常駐サービスを維持せず GitHub Actions で定期実行できます。
+- **監視対象リポジトリの権限不要：** GitHub API で公開情報をポーリングするため、GitHub App のインストール、Webhook の設定、各リポジトリの変更は不要です。
+- **複数リポジトリを一元管理：** 複数リポジトリの Commit、Release、GitHub Actions の更新を 1 つの Telegram スーパーグループに集約し、リポジトリごとに専用トピックへ送信します。
+- **状態とトピックを自動管理：** `state.json` に進捗を記録して重複通知を防ぎ、リポジトリのトピックを自動的に作成、名前変更、閉鎖します。
 
 ## 機能
 
@@ -48,7 +57,7 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 ## GitHub Actions でのデプロイ
 
-すぐにデプロイできる [GH2TG GitHub Actions テンプレート](https://github.com/sorubedo/gh2tg-template) を使用してください。
+すぐにデプロイできる [GH2TG GitHub Actions テンプレート](https://github.com/sorubedo/gh2tg-template) を使用してください。テンプレートは GH2TG を定期実行し、更新された `state.json` を自動的にコミットするため、セルフホストサーバーや手動での状態管理は不要です。
 
 ## Docker
 

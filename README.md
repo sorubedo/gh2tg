@@ -2,7 +2,16 @@
 
 [中文文档](README.zh-CN.md) | [日本語](README.ja.md)
 
+[![Telegram](https://img.shields.io/badge/Telegram-@gh2tg-26A5E4?logo=telegram&logoColor=white)](https://t.me/gh2tg)
+
 GH2TG is a one-shot GitHub-to-Telegram poller. It checks commits, releases, and GitHub Actions for configured repositories, then sends updates and matching build artifacts to topics in a Telegram supergroup.
+
+## Why GH2TG
+
+- **No self-hosted server:** Run GH2TG periodically with GitHub Actions instead of maintaining an always-on service.
+- **No access to monitored repositories:** Poll public GitHub data without installing a GitHub App, configuring webhooks, or changing each repository.
+- **One forum for many repositories:** Collect commits, releases, and GitHub Actions updates from multiple repositories in one Telegram supergroup, with a dedicated topic for each repository.
+- **Automatic state and topic management:** Track progress in `state.json` to avoid duplicate notifications, and automatically create, rename, and close repository topics.
 
 ## Features
 
@@ -48,7 +57,7 @@ The first run establishes the current state baseline and saves it to `state.json
 
 ## GitHub Actions Deployment
 
-Use the ready-to-deploy [GH2TG GitHub Actions template](https://github.com/sorubedo/gh2tg-template).
+Use the ready-to-deploy [GH2TG GitHub Actions template](https://github.com/sorubedo/gh2tg-template). It runs GH2TG on a schedule and automatically commits the updated `state.json`, so no self-hosted server or manual state maintenance is required.
 
 ## Docker
 

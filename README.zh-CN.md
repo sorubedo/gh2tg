@@ -2,7 +2,16 @@
 
 [English](README.md) | [日本語](README.ja.md)
 
+[![Telegram](https://img.shields.io/badge/Telegram-@gh2tg-26A5E4?logo=telegram&logoColor=white)](https://t.me/gh2tg)
+
 GH2TG 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配置仓库的提交、Release 和 GitHub Actions，并把更新与匹配的构建产物发送到 Telegram 超级群组的话题中。
+
+## 核心优势
+
+- **无需自部署服务器：** GH2TG 采用单次执行模式，可直接使用 GitHub Actions 定时运行，无需维护常驻服务。
+- **无需待监控仓库权限：** 通过 GitHub API 轮询公开信息，无需安装 GitHub App、配置 Webhook 或修改各个仓库。
+- **多仓库统一管理：** 将多个仓库的 Commit、Release 和 GitHub Actions 更新汇总到同一个 Telegram 超级群组，每个仓库对应一个独立话题。
+- **自动维护状态与话题：** 使用 `state.json` 记录进度以避免重复通知，并自动创建、重命名和关闭仓库对应的话题。
 
 ## 功能
 
@@ -48,7 +57,7 @@ gh2tg --config /path/to/config.json --state /path/to/state.json
 
 ## 使用 GitHub Actions 部署
 
-请使用可直接部署的 [GH2TG GitHub Actions 模板](https://github.com/sorubedo/gh2tg-template)。
+请使用可直接部署的 [GH2TG GitHub Actions 模板](https://github.com/sorubedo/gh2tg-template)。模板会定时运行 GH2TG，并自动提交更新后的 `state.json`，无需自部署服务器或手动维护状态。
 
 ## Docker
 
