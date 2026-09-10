@@ -26,7 +26,6 @@ GH2TG 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配置�
 
 - 开启了“话题”的 Telegram 超级群组
 - Telegram Bot，并授予管理员的“管理话题”权限
-- GitHub Token
 
 ## 快速开始
 
@@ -35,9 +34,10 @@ GH2TG 是一个单次执行的 GitHub 到 Telegram 轮询器：它检查配置�
 ```bash
 GH2TG_BOT_TOKEN=你的 Telegram Bot Token
 GH2TG_GROUP_ID=-1001234567890
-GH2TG_GITHUB_TOKEN=你的 GitHub Token
 LANG=zh
 ```
+
+监控公开仓库时，`GH2TG_GITHUB_TOKEN` 是可选的。提高 GitHub API 请求额度、访问私有仓库或下载 GitHub Actions Artifacts 时需要设置它。Actions 工作流配置了 `artifact_regex` 时必须提供 Token。
 
 `LANG` 可选值：`en`（英文，默认）、`zh`（中文）、`ja`（日文）。也支持 `en_US.UTF-8`、`zh_CN.UTF-8`、`ja_JP.UTF-8` 等区域格式。
 

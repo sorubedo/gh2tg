@@ -26,7 +26,6 @@ GH2TG is a one-shot GitHub-to-Telegram poller. It checks commits, releases, and 
 
 - A Telegram supergroup with Topics enabled
 - A Telegram Bot with administrator permission to manage topics
-- A GitHub Token
 
 ## Quick Start
 
@@ -35,9 +34,10 @@ Set the following environment variables:
 ```bash
 GH2TG_BOT_TOKEN=your_telegram_bot_token
 GH2TG_GROUP_ID=-1001234567890
-GH2TG_GITHUB_TOKEN=your_github_token
 LANG=en
 ```
+
+`GH2TG_GITHUB_TOKEN` is optional for public repositories. Set it to increase the GitHub API rate limit, access private repositories, or download GitHub Actions artifacts. A token is required when an Actions workflow configures `artifact_regex`.
 
 `LANG` supports `en` (English, default), `zh` (Chinese), and `ja` (Japanese). Locale formats such as `en_US.UTF-8`, `zh_CN.UTF-8`, and `ja_JP.UTF-8` are also supported.
 

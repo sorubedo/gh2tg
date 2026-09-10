@@ -82,6 +82,8 @@ pub enum GitHubError {
     },
     #[error("GitHub returned HTTP {status}: {message}")]
     Http { status: StatusCode, message: String },
+    #[error("GitHub rate limit exceeded with HTTP {status}: {message}")]
+    RateLimited { status: StatusCode, message: String },
     #[error("failed to create download file {path}: {source}")]
     CreateDownload {
         path: PathBuf,
@@ -103,7 +105,7 @@ pub enum GitHubError {
 }
 
 impl GitHubClient {
-    pub fn new(token: String) -> Result<Self, GitHubError> {
+    pub fn new(token: Option<String>) -> Result<Self, GitHubError> {
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_static(USER_AGENT_VALUE));
         headers.insert(
@@ -111,10 +113,12 @@ impl GitHubClient {
             HeaderValue::from_static("application/vnd.github+json"),
         );
 
-        let mut authorization =
-            HeaderValue::from_str(&format!("Bearer {token}")).map_err(GitHubError::InvalidToken)?;
-        authorization.set_sensitive(true);
-        headers.insert(AUTHORIZATION, authorization);
+        if let Some(token) = token {
+            let mut authorization = HeaderValue::from_str(&format!("Bearer {token}"))
+                .map_err(GitHubError::InvalidToken)?;
+            authorization.set_sensitive(true);
+            headers.insert(AUTHORIZATION, authorization);
+        }
 
         let client = Client::builder()
             .default_headers(headers)
@@ -126,7 +130,7 @@ impl GitHubClient {
     }
 
     #[cfg(test)]
-    pub(crate) fn with_api_root(token: String, api_root: Url) -> Result<Self, GitHubError> {
+    pub(crate) fn with_api_root(token: Option<String>, api_root: Url) -> Result<Self, GitHubError> {
         let mut github = Self::new(token)?;
         github.api_root = api_root;
         Ok(github)
@@ -168,7 +172,7 @@ impl GitHubClient {
                 }
             };
 
-            if should_retry_status(response.status()) && attempt + 1 < MAX_GET_ATTEMPTS {
+            if should_retry_response(&response) && attempt + 1 < MAX_GET_ATTEMPTS {
                 wait_before_retry(attempt, response.headers().get(RETRY_AFTER)).await;
                 continue;
             }
@@ -231,7 +235,7 @@ impl GitHubClient {
                 return Ok(ConditionalJson::NotModified);
             }
 
-            if should_retry_status(response.status()) && attempt + 1 < MAX_GET_ATTEMPTS {
+            if should_retry_response(&response) && attempt + 1 < MAX_GET_ATTEMPTS {
                 wait_before_retry(attempt, response.headers().get(RETRY_AFTER)).await;
                 continue;
             }
@@ -333,7 +337,7 @@ impl GitHubClient {
                 }
             };
 
-            if should_retry_status(response.status()) && attempt + 1 < MAX_GET_ATTEMPTS {
+            if should_retry_response(&response) && attempt + 1 < MAX_GET_ATTEMPTS {
                 let status = response.status().to_string();
                 eprintln!(
                     "{}",
@@ -514,16 +518,30 @@ async fn checked_response(response: reqwest::Response) -> Result<reqwest::Respon
         return Ok(response);
     }
 
+    let rate_limited = is_rate_limited_response(&response);
     let message = response
         .text()
         .await
         .unwrap_or_else(|error| error.to_string());
     let message: String = message.chars().take(1000).collect();
-    Err(GitHubError::Http { status, message })
+    if rate_limited {
+        Err(GitHubError::RateLimited { status, message })
+    } else {
+        Err(GitHubError::Http { status, message })
+    }
 }
 
-fn should_retry_status(status: StatusCode) -> bool {
-    status == StatusCode::TOO_MANY_REQUESTS || status.is_server_error()
+fn should_retry_response(response: &reqwest::Response) -> bool {
+    is_rate_limited_response(response) || response.status().is_server_error()
+}
+
+fn is_rate_limited_response(response: &reqwest::Response) -> bool {
+    response.status() == StatusCode::TOO_MANY_REQUESTS
+        || (response.status() == StatusCode::FORBIDDEN
+            && response
+                .headers()
+                .get("x-ratelimit-remaining")
+                .is_some_and(|value| value == "0"))
 }
 
 fn should_retry_response_error(error: &reqwest::Error) -> bool {
@@ -555,7 +573,99 @@ mod tests {
     use tempfile::TempDir;
     use url::Url;
 
-    use super::{ConditionalJson, GitHubClient, format_bytes_per_second};
+    use super::{ConditionalJson, GitHubClient, GitHubError, format_bytes_per_second};
+
+    #[tokio::test]
+    async fn omits_authorization_header_without_a_token() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("test server must bind");
+        let address = listener
+            .local_addr()
+            .expect("test server must have address");
+        let server = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("test request must connect");
+            let request = read_http_request(&mut stream);
+            write_http_response(&mut stream, "200 OK", &[], "[]");
+            request
+        });
+        let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
+        let github = GitHubClient::with_api_root(None, api_root)
+            .expect("anonymous GitHub client must be created");
+        let url = Url::parse(&format!("http://{address}/commits")).expect("test URL must parse");
+
+        let _: Vec<serde_json::Value> = github
+            .get_json(url)
+            .await
+            .expect("anonymous request must succeed");
+
+        let request = server.join().expect("test server must stop");
+        assert!(!request.to_ascii_lowercase().contains("authorization:"));
+    }
+
+    #[tokio::test]
+    async fn sends_bearer_authorization_header_with_a_token() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("test server must bind");
+        let address = listener
+            .local_addr()
+            .expect("test server must have address");
+        let server = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("test request must connect");
+            let request = read_http_request(&mut stream);
+            write_http_response(&mut stream, "200 OK", &[], "[]");
+            request
+        });
+        let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
+            .expect("authenticated GitHub client must be created");
+        let url = Url::parse(&format!("http://{address}/commits")).expect("test URL must parse");
+
+        let _: Vec<serde_json::Value> = github
+            .get_json(url)
+            .await
+            .expect("authenticated request must succeed");
+
+        let request = server.join().expect("test server must stop");
+        assert!(
+            request
+                .to_ascii_lowercase()
+                .contains("authorization: bearer test-token")
+        );
+    }
+
+    #[tokio::test]
+    async fn classifies_forbidden_response_with_exhausted_quota_as_rate_limited() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("test server must bind");
+        let address = listener
+            .local_addr()
+            .expect("test server must have address");
+        let server = thread::spawn(move || {
+            for _ in 0..3 {
+                let (mut stream, _) = listener.accept().expect("test request must connect");
+                let _request = read_http_request(&mut stream);
+                write_http_response(
+                    &mut stream,
+                    "403 Forbidden",
+                    &[("X-RateLimit-Remaining", "0"), ("Retry-After", "0")],
+                    r#"{"message":"API rate limit exceeded"}"#,
+                );
+            }
+        });
+        let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
+        let github = GitHubClient::with_api_root(None, api_root)
+            .expect("anonymous GitHub client must be created");
+        let url =
+            Url::parse(&format!("http://{address}/repos/owner/repo")).expect("test URL must parse");
+
+        let error = github
+            .get_json::<serde_json::Value>(url)
+            .await
+            .expect_err("exhausted quota must fail");
+
+        assert!(matches!(
+            error,
+            GitHubError::RateLimited { status, .. } if status == reqwest::StatusCode::FORBIDDEN
+        ));
+        server.join().expect("test server must stop");
+    }
 
     #[test]
     fn formats_download_rate() {
@@ -601,7 +711,7 @@ mod tests {
         });
 
         let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let url =
             Url::parse(&format!("http://{address}/releases")).expect("release URL must parse");
@@ -651,7 +761,7 @@ mod tests {
         });
 
         let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let url = Url::parse(&format!("http://{address}/asset")).expect("asset URL must parse");
         let directory = TempDir::new().expect("temporary directory must be created");
@@ -670,5 +780,37 @@ mod tests {
                 .to_ascii_lowercase()
                 .contains("accept: application/octet-stream")
         }));
+    }
+
+    fn read_http_request(stream: &mut std::net::TcpStream) -> String {
+        let mut request = Vec::new();
+        let mut buffer = [0_u8; 1024];
+        while !request.windows(4).any(|window| window == b"\r\n\r\n") {
+            let read = stream.read(&mut buffer).expect("request must be readable");
+            if read == 0 {
+                break;
+            }
+            request.extend_from_slice(&buffer[..read]);
+        }
+        String::from_utf8(request).expect("request must be UTF-8")
+    }
+
+    fn write_http_response(
+        stream: &mut std::net::TcpStream,
+        status: &str,
+        headers: &[(&str, &str)],
+        body: &str,
+    ) {
+        let headers = headers
+            .iter()
+            .map(|(name, value)| format!("{name}: {value}\r\n"))
+            .collect::<String>();
+        let response = format!(
+            "HTTP/1.1 {status}\r\n{headers}Content-Length: {}\r\nConnection: close\r\n\r\n{body}",
+            body.len()
+        );
+        stream
+            .write_all(response.as_bytes())
+            .expect("response must be written");
     }
 }

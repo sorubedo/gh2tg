@@ -290,6 +290,7 @@ fn github_error_status_code(error: &GitHubError) -> TelegramGroupPreparationStat
         GitHubError::InvalidRepository(_) => TelegramGroupPreparationStatusCode::InvalidRepository,
         GitHubError::InvalidToken(_) => TelegramGroupPreparationStatusCode::InvalidGitHubToken,
         GitHubError::Request { .. } => TelegramGroupPreparationStatusCode::GitHubNetworkError,
+        GitHubError::RateLimited { .. } => TelegramGroupPreparationStatusCode::GitHubRateLimited,
         GitHubError::Http { status, .. } if status.as_u16() == 401 => {
             TelegramGroupPreparationStatusCode::InvalidGitHubToken
         }

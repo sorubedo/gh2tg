@@ -970,8 +970,8 @@ mod tests {
         let mut session = ProgramStateSession::load_state_file_or_initialize_default(&path, 42)
             .expect("state file must load")
             .value;
-        let github =
-            GitHubClient::new("test-token".to_owned()).expect("GitHub client must be created");
+        let github = GitHubClient::new(Some("test-token".to_owned()))
+            .expect("GitHub client must be created");
 
         let resolved = session
             .resolve_repository_id(&github, "owner/repo")

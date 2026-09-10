@@ -208,7 +208,7 @@ mod tests {
         });
 
         let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let fetched =
             super::fetch_commit_comparison(&github, "owner/repo", "previous-sha", "head-sha")

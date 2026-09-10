@@ -26,7 +26,6 @@ GH2TG は、GitHub から Telegram へ通知を送る単発実行型のポーラ
 
 - トピックを有効にした Telegram スーパーグループ
 - トピック管理権限を持つ Telegram Bot
-- GitHub Token
 
 ## クイックスタート
 
@@ -35,9 +34,10 @@ GH2TG は、GitHub から Telegram へ通知を送る単発実行型のポーラ
 ```bash
 GH2TG_BOT_TOKEN=your_telegram_bot_token
 GH2TG_GROUP_ID=-1001234567890
-GH2TG_GITHUB_TOKEN=your_github_token
 LANG=ja
 ```
+
+公開リポジトリを監視する場合、`GH2TG_GITHUB_TOKEN` は任意です。GitHub API のレート制限を引き上げる場合、プライベートリポジトリへアクセスする場合、または GitHub Actions Artifact をダウンロードする場合は設定してください。Actions Workflow に `artifact_regex` を設定した場合は Token が必要です。
 
 `LANG` は `en`（英語、デフォルト）、`zh`（中国語）、`ja`（日本語）に対応しています。`en_US.UTF-8`、`zh_CN.UTF-8`、`ja_JP.UTF-8` などのロケール形式も使用できます。
 

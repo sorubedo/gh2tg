@@ -535,7 +535,7 @@ mod tests {
     #[test]
     fn latest_release_query_requests_one_release_per_page() {
         let api_root = Url::parse("http://127.0.0.1/").expect("test URL must parse");
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let repository = RepositoryId::from_database_id(
             1,
@@ -590,7 +590,7 @@ mod tests {
         });
 
         let api_root = Url::parse(&format!("http://{address}/")).expect("test URL must parse");
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let repository = RepositoryId::from_database_id(
             1,

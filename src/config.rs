@@ -15,7 +15,7 @@ const SUPPORTED_SCHEMA_VERSION: u32 = 1;
 pub struct Settings {
     pub bot_token: String,
     pub group_id: i64,
-    pub github_token: String,
+    pub github_token: Option<String>,
     pub schema_version: u32,
     pub repositories: BTreeMap<String, RepositoryConfig>,
 }
@@ -55,7 +55,7 @@ pub struct WorkflowConfig {
 struct Environment {
     bot_token: String,
     group_id: i64,
-    github_token: String,
+    github_token: Option<String>,
 }
 
 struct ConfigFile {
@@ -164,6 +164,13 @@ pub enum ConfigError {
         workflow_file: String,
         branch: String,
     },
+    #[error(
+        "repository {repository} workflow {workflow_file} downloads Actions artifacts; set GH2TG_GITHUB_TOKEN"
+    )]
+    MissingGitHubTokenForActionsArtifacts {
+        repository: String,
+        workflow_file: String,
+    },
 }
 
 pub fn load(path: &Path) -> Result<Settings, ConfigError> {
@@ -175,6 +182,12 @@ pub fn load(path: &Path) -> Result<Settings, ConfigError> {
 
     let environment = load_environment()?;
     let config = load_json(path)?;
+
+    build_settings(environment, config)
+}
+
+fn build_settings(environment: Environment, config: ConfigFile) -> Result<Settings, ConfigError> {
+    validate_github_token_requirements(environment.github_token.as_deref(), &config.repositories)?;
 
     Ok(Settings {
         bot_token: environment.bot_token,
@@ -189,7 +202,7 @@ fn load_environment() -> Result<Environment, ConfigError> {
     Ok(Environment {
         bot_token: required_environment("GH2TG_BOT_TOKEN")?,
         group_id: parse_group_id(&required_environment("GH2TG_GROUP_ID")?)?,
-        github_token: required_environment("GH2TG_GITHUB_TOKEN")?,
+        github_token: optional_environment("GH2TG_GITHUB_TOKEN")?,
     })
 }
 
@@ -200,6 +213,42 @@ fn required_environment(name: &'static str) -> Result<String, ConfigError> {
         Err(env::VarError::NotPresent) => Err(ConfigError::MissingEnvironment(name)),
         Err(env::VarError::NotUnicode(_)) => Err(ConfigError::InvalidEnvironment(name)),
     }
+}
+
+fn optional_environment(name: &'static str) -> Result<Option<String>, ConfigError> {
+    match env::var(name) {
+        Ok(value) if value.trim().is_empty() => Ok(None),
+        Ok(value) => Ok(Some(value)),
+        Err(env::VarError::NotPresent) => Ok(None),
+        Err(env::VarError::NotUnicode(_)) => Err(ConfigError::InvalidEnvironment(name)),
+    }
+}
+
+fn validate_github_token_requirements(
+    github_token: Option<&str>,
+    repositories: &BTreeMap<String, RepositoryConfig>,
+) -> Result<(), ConfigError> {
+    if github_token.is_some() {
+        return Ok(());
+    }
+
+    for (repository, config) in repositories {
+        let Some(actions) = &config.actions else {
+            continue;
+        };
+        if let Some(workflow) = actions
+            .workflows
+            .iter()
+            .find(|workflow| workflow.artifact_regex.is_some())
+        {
+            return Err(ConfigError::MissingGitHubTokenForActionsArtifacts {
+                repository: repository.clone(),
+                workflow_file: workflow.workflow_file.clone(),
+            });
+        }
+    }
+
+    Ok(())
 }
 
 fn parse_group_id(value: &str) -> Result<i64, ConfigError> {
@@ -462,7 +511,85 @@ fn validate_nonempty(repository: &str, field: &str, value: &str) -> Result<(), C
 mod tests {
     use std::path::Path;
 
-    use super::{ConfigError, parse_json};
+    use super::{ConfigError, Environment, build_settings, parse_json};
+
+    #[test]
+    fn accepts_public_repository_configuration_without_a_github_token() {
+        let config = parse_json(
+            Path::new("config.json"),
+            r#"{
+                "schema_version": 1,
+                "repositories": {
+                    "owner/repo": {
+                        "commits": { "branches": ["main"] },
+                        "actions": {
+                            "workflows": [{
+                                "workflow_file": "build.yml",
+                                "branches": ["main"],
+                                "conclusions": ["success"]
+                            }]
+                        }
+                    }
+                }
+            }"#,
+        )
+        .expect("public repository configuration must parse");
+
+        let settings = build_settings(
+            Environment {
+                bot_token: "telegram-token".to_owned(),
+                group_id: -1001234567890,
+                github_token: None,
+            },
+            config,
+        )
+        .expect("a GitHub token must be optional for public data");
+
+        assert_eq!(settings.github_token, None);
+    }
+
+    #[test]
+    fn actions_artifact_downloads_require_a_github_token() {
+        let config = parse_json(
+            Path::new("config.json"),
+            r#"{
+                "schema_version": 1,
+                "repositories": {
+                    "owner/repo": {
+                        "actions": {
+                            "workflows": [{
+                                "workflow_file": "build.yml",
+                                "branches": ["main"],
+                                "conclusions": ["success"],
+                                "artifact_regex": "^linux-"
+                            }]
+                        }
+                    }
+                }
+            }"#,
+        )
+        .expect("Actions artifact configuration must parse");
+
+        let error = match build_settings(
+            Environment {
+                bot_token: "telegram-token".to_owned(),
+                group_id: -1001234567890,
+                github_token: None,
+            },
+            config,
+        ) {
+            Ok(_) => panic!("Actions artifact downloads must require a GitHub token"),
+            Err(error) => error,
+        };
+
+        assert!(matches!(
+            error,
+            ConfigError::MissingGitHubTokenForActionsArtifacts {
+                repository,
+                workflow_file,
+            } if repository == "owner/repo" && workflow_file == "build.yml"
+        ));
+    }
 
     #[test]
     fn rejects_duplicate_commit_branches() {

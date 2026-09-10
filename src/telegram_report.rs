@@ -623,7 +623,7 @@ mod tests {
         });
 
         let api_url = Url::parse(&format!("http://{address}/")).expect("API URL must parse");
-        let github = GitHubClient::with_api_root("github-token".to_owned(), api_url.clone())
+        let github = GitHubClient::with_api_root(Some("github-token".to_owned()), api_url.clone())
             .expect("GitHub client must be created");
         let telegram =
             TelegramClient::with_api_url("telegram-token".to_owned(), -1001234567890, api_url);
@@ -662,7 +662,7 @@ mod tests {
         });
 
         let api_url = Url::parse(&format!("http://{address}/")).expect("API URL must parse");
-        let github = GitHubClient::with_api_root("github-token".to_owned(), api_url.clone())
+        let github = GitHubClient::with_api_root(Some("github-token".to_owned()), api_url.clone())
             .expect("GitHub client must be created");
         let telegram = TelegramClient::new("telegram-token".to_owned(), -1001234567890);
         let publisher = TelegramReportPublisher::new(&github, &telegram, MessageThreadId(123));

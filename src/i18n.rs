@@ -324,6 +324,15 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
                     branch,
                 },
             ) => format!("仓库 {repository} 重复配置 Actions 目标 {workflow_file} / {branch}"),
+            (
+                Language::Chinese,
+                ConfigError::MissingGitHubTokenForActionsArtifacts {
+                    repository,
+                    workflow_file,
+                },
+            ) => format!(
+                "仓库 {repository} 的 Workflow {workflow_file} 需要下载 Actions Artifact，请设置 GH2TG_GITHUB_TOKEN"
+            ),
 
             (Language::Japanese, ConfigError::Dotenv(source)) => {
                 format!(".env を読み込めません: {source}")
@@ -382,6 +391,15 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
             ) => format!(
                 "リポジトリ {repository} の Actions 対象が重複しています: {workflow_file} / {branch}"
             ),
+            (
+                Language::Japanese,
+                ConfigError::MissingGitHubTokenForActionsArtifacts {
+                    repository,
+                    workflow_file,
+                },
+            ) => format!(
+                "リポジトリ {repository} の Workflow {workflow_file} は Actions Artifact をダウンロードするため、GH2TG_GITHUB_TOKEN を設定してください"
+            ),
             (Language::English, _) => unreachable!(),
         }
     }
@@ -429,6 +447,9 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
             (Language::Chinese, GitHubError::Http { status, message }) => {
                 format!("GitHub 返回 HTTP {status}: {message}")
             }
+            (Language::Chinese, GitHubError::RateLimited { status, message }) => {
+                format!("GitHub API 请求额度已用尽（HTTP {status}）: {message}")
+            }
             (Language::Chinese, GitHubError::CreateDownload { path, source }) => {
                 format!("无法创建下载文件 {}: {source}", path.display())
             }
@@ -474,6 +495,9 @@ Environment:\n  LC_ALL / LC_MESSAGES / LANG  Output language: en, zh, or ja (def
             }
             (Language::Japanese, GitHubError::Http { status, message }) => {
                 format!("GitHub が HTTP {status} を返しました: {message}")
+            }
+            (Language::Japanese, GitHubError::RateLimited { status, message }) => {
+                format!("GitHub API のレート制限に達しました（HTTP {status}）: {message}")
             }
             (Language::Japanese, GitHubError::CreateDownload { path, source }) => {
                 format!(

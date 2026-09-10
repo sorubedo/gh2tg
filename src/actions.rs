@@ -580,7 +580,7 @@ mod tests {
             ),
         ];
         let (api_root, requests, server) = start_test_server(responses);
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let workflow = workflow_config("^linux-");
 
@@ -640,7 +640,7 @@ mod tests {
             ),
         ];
         let (api_root, requests, server) = start_test_server(responses);
-        let github = GitHubClient::with_api_root("test-token".to_owned(), api_root)
+        let github = GitHubClient::with_api_root(Some("test-token".to_owned()), api_root)
             .expect("GitHub client must be created");
         let workflow = workflow_config("^windows-");
         let current = ActionCursor::new(
